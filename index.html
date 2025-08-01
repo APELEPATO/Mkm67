@@ -18,7 +18,8 @@
             font-family: 'Audiowide', sans-serif;
             background-color: #000;
             color: #E0E0E0;
-            overflow: hidden;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            overflow-y: auto;   /* Allow vertical scroll if content is large */
         }
 
         /* --- Animation Keyframes --- */
@@ -46,17 +47,6 @@
             to {
                 opacity: 1;
                 transform: scale(1);
-            }
-        }
-
-        @keyframes fadeInDetail {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
             }
         }
 
@@ -102,7 +92,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh; /* Use min-height to adapt to content */
+            padding: 50px 20px; /* Add some padding */
             opacity: 0;
             transition: opacity 1.5s ease-in-out;
             pointer-events: none; /* Prevent interaction while hidden */
@@ -152,6 +143,8 @@
             border: 2px solid var(--glow-color);
             box-shadow: 0 0 15px var(--glow-color), inset 0 0 15px var(--glow-color);
             opacity: 0;
+            width: 100%;
+            max-width: 500px;
         }
 
         #main-content.visible .contact-card {
@@ -177,6 +170,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            word-break: break-all; /* Helps with long email addresses on small screens */
         }
         
         .contact-card li:last-child { margin-bottom: 0; }
@@ -184,6 +178,7 @@
         .contact-card .icon {
             width: 24px;
             height: 24px;
+            flex-shrink: 0; /* Prevents icon from shrinking */
             fill: var(--glow-color);
             filter: drop-shadow(0 0 5px var(--glow-color));
         }
@@ -199,7 +194,7 @@
         <div class="content-wrapper">
             <h2 id="profile-heading" class="neon-text rgb-effect">Profile Picture</h2>
             
-            <img id="profile-photo" class="rgb-effect" src="https://via.placeholder.com/200" alt="Profile Picture of Adithyan">
+            <img id="profile-photo" class="rgb-effect" src="http://googleusercontent.com/file_content/1" alt="Profile Picture of MK677">
 
             <div class="contact-card rgb-effect">
                 <h2 class="neon-text">Adithyan</h2>
@@ -228,46 +223,23 @@
             const brandElement = document.getElementById('brand-name-animated');
             const brandName = "MK677";
 
-            function runAnimationCycle() {
-                // --- 1. Show Splash Screen ---
-                mainContent.classList.remove('visible');
-                splashScreen.style.display = 'flex';
-                
-                // We use a short timeout to allow the display property to apply before changing opacity
+            // --- 1. Animate Splash Screen ---
+            brandElement.innerHTML = brandName.split('').map((char, index) => 
+                `<span style="animation-delay: ${index * 0.2}s;">${char}</span>`
+            ).join('');
+
+            // --- 2. Transition to Main Content (One-way, no loop) ---
+            const introDuration = (brandName.length * 200) + 1500;
+            setTimeout(() => {
+                splashScreen.style.opacity = '0';
+
+                // After the splash screen fades out, hide it and show the main content.
                 setTimeout(() => {
-                    splashScreen.style.opacity = '1';
-                }, 10);
-                
-                brandElement.innerHTML = brandName.split('').map((char, index) => 
-                    `<span style="animation-delay: ${index * 0.2}s;">${char}</span>`
-                ).join('');
+                    splashScreen.style.display = 'none';
+                    mainContent.classList.add('visible');
+                }, 1500); // This delay must match the splash screen's transition time
 
-                // --- 2. Transition to Main Content after intro animation ---
-                const introDuration = (brandName.length * 200) + 1500;
-                setTimeout(() => {
-                    splashScreen.style.opacity = '0';
-
-                    setTimeout(() => {
-                        splashScreen.style.display = 'none';
-                        mainContent.classList.add('visible');
-                    }, 1500); // Must match splash screen transition time
-
-                }, introDuration);
-
-
-                // --- 3. Hold Main Content for 3 seconds, then restart cycle ---
-                const mainContentDisplayTime = introDuration + 1500 + 3000; // Total time until we restart
-                setTimeout(() => {
-                    // Start the fade out of main content, then loop
-                    mainContent.classList.remove('visible');
-
-                    setTimeout(runAnimationCycle, 1500); // Wait for fade out to finish, then loop
-
-                }, mainContentDisplayTime);
-            }
-
-            // Start the first cycle
-            runAnimationCycle();
+            }, introDuration);
         });
     </script>
 
